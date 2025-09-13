@@ -56,14 +56,14 @@
             to { opacity: 1; }
         }
         @keyframes zoomInModal {
-            from { transform: scale(0.9); }
-            to { transform: scale(1); }
+            from { transform: scale(0.5); }
+            to { transform: scale(2); }
         }
         .modal-fade-in {
-            animation: fadeInModal 0.2s ease-out;
+            animation: fadeInModal 0.3s ease-out;
         }
         .modal-zoom-in {
-            animation: zoomInModal 0.2s ease-out;
+            animation: zoomInModal 0.1s ease-out;
         }
         /* Стили для карты */
         #map {
@@ -1180,4 +1180,5 @@
         document.addEventListener('DOMContentLoaded', initialize);
     </script>
 </body>
+
 </html>
