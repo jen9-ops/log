@@ -5,18 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Журнал событий</title>
     
-    <link rel="icon" href="star.PNG" type="image/png">
-
     <script src="https://cdn.tailwindcss.com"></script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/mgrs@2.0.0/mgrs.min.js"></script>
 
     <link id="manifest-link" rel="manifest">
 
@@ -65,39 +58,6 @@
         .modal-zoom-in {
             animation: zoomInModal 0.2s ease-out;
         }
-        /* Стили для карты */
-        #map {
-            height: 60vh;
-            border-radius: 0.5rem;
-        }
-        .popup-delete-btn {
-            margin-top: 8px;
-            padding: 4px 8px;
-            font-size: 12px;
-            color: white;
-            background-color: #dc2626; /* red-600 */
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .popup-delete-btn:hover {
-            background-color: #b91c1c; /* red-700 */
-        }
-        .popup-copy-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 2px;
-            vertical-align: middle;
-        }
-        .popup-copy-btn svg {
-            width: 16px;
-            height: 16px;
-            stroke: #9ca3af; /* gray-400 */
-        }
-        .popup-copy-btn:hover svg {
-            stroke: #ffffff;
-        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-gray-900 to-indigo-900/50 text-gray-200">
@@ -109,37 +69,36 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
-                    <label for="shift-select" class="block mb-2 text-sm font-medium text-gray-400 uppercase tracking-wider">Смена</label>
-                    <select id="shift-select" class="bg-gray-700/50 border border-gray-600 text-gray-200 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3 transition duration-200 ease-in-out hover:border-gray-500">
-                        <option selected disabled>-- Не выбрана --</option>
-                        <option value="Честер">Честер</option>
-                        <option value="Козак">Козак</option>
-                        <option value="rename">Переименовать...</option>
-                    </select>
-                    <div id="rename-shift-container" class="mt-4 hidden">
-                         <div class="flex space-x-2">
-                            <input type="text" id="rename-shift-input" class="flex-grow bg-gray-700/50 border border-gray-600 text-gray-200 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3 placeholder-gray-500 transition" placeholder="Новое имя">
-                            <button id="rename-shift-button" class="bg-indigo-600 text-white font-semibold px-4 py-2.5 rounded-lg hover:bg-indigo-700 transition">ОК</button>
-                        </div>
-                    </div>
+                    <label for="shift-input" class="block mb-2 text-sm font-medium text-gray-400 uppercase tracking-wider">Смена</label>
+                    <input type="text" id="shift-input" class="bg-gray-700/50 border border-gray-600 text-gray-200 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3 placeholder-gray-500 transition" placeholder="Название смены">
                 </div>
 
                 <div>
-                    <label for="event-select-button" class="block mb-2 text-sm font-medium text-gray-400 uppercase tracking-wider">Событие</label>
-                    <div id="custom-event-select-container" class="relative">
-                        <button id="event-select-button" type="button" class="bg-gray-700/50 border border-gray-600 text-gray-200 text-sm rounded-lg focus:ring-2 focus:ring-offset-0 focus:ring-indigo-500 focus:outline-none block w-full p-3 text-left flex justify-between items-center transition hover:border-gray-500">
-                            <span id="event-select-value" class="truncate">-- Не выбрано --</span>
-                            <svg class="w-4 h-4 ml-2 flex-shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </button>
-                        <div id="event-options-panel" class="hidden absolute z-10 w-full mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-lg">
-                            <ul id="event-options-list" class="py-1 text-sm text-gray-200 max-h-60 overflow-y-auto custom-scrollbar"></ul>
+                    <label for="position-input" class="block mb-2 text-sm font-medium text-gray-400 uppercase tracking-wider">Позиция</label>
+                    <div class="relative flex items-center">
+                        <input type="text" id="position-input" class="bg-gray-700/50 border border-gray-600 text-gray-200 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3 pr-10 placeholder-gray-500 transition" placeholder="Название позиции">
+                        <div id="position-gps-status" class="absolute right-3 top-1/2 -translate-y-1/2" title="Статус GPS для позиции">
+                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0zM15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                         </div>
                     </div>
-                     <div id="custom-event-container" class="mt-4 hidden">
-                        <div class="flex space-x-2">
-                            <input type="text" id="custom-event-input" class="flex-grow bg-gray-700/50 border border-gray-600 text-gray-200 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3 placeholder-gray-500 transition" placeholder="Название события">
-                            <button id="add-event-button" class="bg-indigo-600 text-white font-semibold px-4 py-2.5 rounded-lg hover:bg-indigo-700 transition">ОК</button>
-                        </div>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <label for="event-select-button" class="block mb-2 text-sm font-medium text-gray-400 uppercase tracking-wider">Событие</label>
+                <div id="custom-event-select-container" class="relative">
+                    <button id="event-select-button" type="button" class="bg-gray-700/50 border border-gray-600 text-gray-200 text-sm rounded-lg focus:ring-2 focus:ring-offset-0 focus:ring-indigo-500 focus:outline-none block w-full p-3 text-left flex justify-between items-center transition hover:border-gray-500">
+                        <span id="event-select-value" class="truncate">-- Не выбрано --</span>
+                        <svg class="w-4 h-4 ml-2 flex-shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div id="event-options-panel" class="hidden absolute z-10 w-full mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-lg">
+                        <ul id="event-options-list" class="py-1 text-sm text-gray-200 max-h-60 overflow-y-auto custom-scrollbar"></ul>
+                    </div>
+                </div>
+                 <div id="custom-event-container" class="mt-4 hidden">
+                    <div class="flex space-x-2">
+                        <input type="text" id="custom-event-input" class="flex-grow bg-gray-700/50 border border-gray-600 text-gray-200 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3 placeholder-gray-500 transition" placeholder="Название события">
+                        <button id="add-event-button" class="bg-indigo-600 text-white font-semibold px-4 py-2.5 rounded-lg hover:bg-indigo-700 transition">ОК</button>
                     </div>
                 </div>
             </div>
@@ -179,24 +138,15 @@
                 <div class="flex justify-between items-center mb-4 gap-4">
                     <h2 class="text-lg font-semibold text-white flex-shrink-0">Последние события</h2>
                     <div class="flex items-center space-x-2 flex-shrink-0">
-                        <button id="install-button" title="Добавить на главный экран" class="text-sm text-gray-400 hover:text-white hover:bg-gray-700 p-2 rounded-lg transition hidden">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V16.5m-7.5-15h3a2.25 2.25 0 0 1 2.25 2.25V7.5" />
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 10.5L15 15m0 0l-4.5-4.5" />
-                            </svg>
-                        </button>
-                         <button id="save-button" title="Сохранить" class="text-sm text-gray-400 hover:text-white hover:bg-gray-700 p-2 rounded-lg transition">
+                        <button id="install-button" title="Установить приложение" class="text-sm text-gray-400 hover:text-white hover:bg-gray-700 p-2 rounded-lg transition hidden">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                             </svg>
                         </button>
-                        <button id="share-button" title="Поделиться" class="text-sm text-gray-400 hover:text-white hover:bg-gray-700 p-2 rounded-lg transition">
-                           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12s-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
-                           </svg>
-                        </button>
-                        <button id="map-button" title="Показать карту" class="text-sm text-gray-400 hover:text-white hover:bg-gray-700 p-2 rounded-lg transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.012 6.012 0 011.912-2.706C6.512 5.73 6.974 6 7.5 6A1.5 1.5 0 019 7.5V8a2 2 0 004 0 2 2 0 011.523-1.943A5.998 5.998 0 0116 10c0 .954-.225 1.852-.635 2.667l-5.26 6.247a.5.5 0 01-.81 0l-5.26-6.247A5.998 5.998 0 014 10c0-.343.028-.677.082-1.007zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" /></svg>
+                        <button id="json-button" title="Скачать JSON" class="text-sm text-gray-400 hover:text-white hover:bg-gray-700 p-2 rounded-lg transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
                         </button>
                         <button id="stats-button" title="Показать статистику" class="text-sm text-gray-400 hover:text-white hover:bg-gray-700 p-2 rounded-lg transition">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" /></svg>
@@ -211,23 +161,10 @@
         </div>
     </div>
     
-    <div id="map-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50 hidden modal-fade-in">
-        <div class="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-4xl border border-gray-700 modal-zoom-in">
-            <div class="flex justify-between items-center p-4 border-b border-gray-700">
-                <h3 class="text-lg font-bold text-white">Карта событий</h3>
-                <button id="map-modal-close" class="p-2 -mr-2 text-2xl leading-none text-gray-400 hover:text-white">&times;</button>
-            </div>
-            <div class="p-4 relative">
-                <div id="map" class="bg-gray-700"></div>
-                <div id="map-overlay" class="absolute inset-4 bg-gray-800 bg-opacity-90 items-center justify-center hidden z-20 rounded-lg"></div>
-            </div>
-        </div>
-    </div>
-
     <div id="stats-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50 hidden modal-fade-in">
         <div id="stats-modal-content" class="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-lg border border-gray-700 modal-zoom-in">
             <div class="flex justify-between items-center p-4 border-b border-gray-700">
-                <h3 class="text-lg font-bold text-white">Статистика смены</h3>
+                <h3 class="text-lg font-bold text-white">Статистика</h3>
                 <button id="stats-modal-close" class="p-2 -mr-2 text-2xl leading-none text-gray-400 hover:text-white">&times;</button>
             </div>
             <div id="stats-body" class="p-6 max-h-[60vh] overflow-y-auto custom-scrollbar"></div>
@@ -244,15 +181,13 @@
             </div>
         </div>
     </div>
-    
-    <div id="toast-notification" class="fixed bottom-5 right-5 bg-green-500 text-white py-2 px-4 rounded-lg shadow-lg opacity-0 transition-opacity duration-300">
-        Текст скопирован!
-    </div>
 
 
     <script>
         // --- Глобальные переменные ---
-        const shiftSelect = document.getElementById('shift-select');
+        const shiftInput = document.getElementById('shift-input');
+        const positionInput = document.getElementById('position-input');
+        const positionGpsStatus = document.getElementById('position-gps-status');
         const eventSelectValue = document.getElementById('event-select-value');
         const azimuthCheckbox = document.getElementById('azimuth-checkbox');
         const azimuthContainer = document.getElementById('azimuth-container');
@@ -267,24 +202,20 @@
         const statsModal = document.getElementById('stats-modal');
         const statsModalClose = document.getElementById('stats-modal-close');
         const statsBody = document.getElementById('stats-body');
-        const mapButton = document.getElementById('map-button');
-        const mapModal = document.getElementById('map-modal');
-        const mapModalClose = document.getElementById('map-modal-close');
         const installButton = document.getElementById('install-button');
-        const saveButton = document.getElementById('save-button');
-        const shareButton = document.getElementById('share-button');
+        const jsonButton = document.getElementById('json-button');
         const confirmModal = document.getElementById('confirm-modal');
         const confirmModalText = document.getElementById('confirm-modal-text');
         const confirmClearBtn = document.getElementById('confirm-clear-btn');
         const cancelClearBtn = document.getElementById('cancel-clear-btn');
         const distanceCalculatorWrapper = document.getElementById('distance-calculator-wrapper');
 
+        // !!! ВАЖНО: Вставьте сюда URL вашего веб-приложения Apps Script !!!
+        const googleScriptUrl = 'https://script.google.com/macros/s/AKfycbz4cMnOrj_SDm4gJmcr0l1Jwi4SR1WjMiyc4RQlxF0xYdrDl8ytA2p5Z-kItF3mt3GE/exec';
+
         // --- Структура данных ---
-        let appData = { logs: {}, customEvents: [], shiftNames: { "Честер": "Честер", "Козак": "Козак" } };
+        let appData = { logs: {}, customEvents: [], positions: {} };
         let confirmCallback = null;
-        let map = null;
-        let userLocation = null;
-        let markersLayer = null;
         let localDistanceLog = [];
         let deferredPrompt;
         
@@ -294,11 +225,26 @@
             'Минометный обстрел 120мм': { maxRange: 7100 }
         };
         const SPEED_OF_SOUND = 343; // м/с
-        const EARTH_RADIUS = 6371e3; // метры
-
+        
         // --- Управление данными ---
         function saveData() { localStorage.setItem('eventLogData', JSON.stringify(appData)); }
-        function loadData() { const data = localStorage.getItem('eventLogData'); if (data) { appData = JSON.parse(data); } }
+        function loadData() { 
+            const data = localStorage.getItem('eventLogData'); 
+            if (data) { 
+                const parsedData = JSON.parse(data);
+                appData = { ...{ logs: {}, customEvents: [], positions: {} }, ...parsedData };
+            }
+            // Загружаем последние использованные значения
+            const lastShift = localStorage.getItem('lastShift');
+            if (lastShift) shiftInput.value = lastShift;
+
+            const lastPosition = localStorage.getItem('lastPosition');
+            if (lastPosition) {
+                positionInput.value = lastPosition;
+                updatePositionGpsStatus();
+                renderLog();
+            }
+        }
 
         // --- Утилиты ---
         function stringToColor(str) {
@@ -320,25 +266,106 @@
             return p.innerHTML;
         }
         
-        // --- Гео-расчеты ---
-        function calculateDestinationPoint(lat, lon, bearing, distance) {
-            const toRadians = (deg) => deg * Math.PI / 180;
-            const toDegrees = (rad) => rad * 180 / Math.PI;
-
-            const latRad = toRadians(lat);
-            const lonRad = toRadians(lon);
-            const bearingRad = toRadians(bearing);
-
-            const angularDistance = distance / EARTH_RADIUS;
-
-            const destLatRad = Math.asin(Math.sin(latRad) * Math.cos(angularDistance) +
-                                        Math.cos(latRad) * Math.sin(angularDistance) * Math.cos(bearingRad));
-
-            let destLonRad = lonRad + Math.atan2(Math.sin(bearingRad) * Math.sin(angularDistance) * Math.cos(latRad),
-                                                Math.cos(angularDistance) - Math.sin(latRad) * Math.sin(destLatRad));
-            
-            return { lat: toDegrees(destLatRad), lon: toDegrees(destLonRad) };
+        // --- Геолокация ---
+        function setGpsStatus(status) {
+            const svg = positionGpsStatus.querySelector('svg');
+            svg.classList.remove('text-gray-500', 'text-yellow-400', 'text-green-400', 'text-red-400', 'animate-pulse');
+            switch (status) {
+                case 'loading':
+                    svg.classList.add('text-yellow-400', 'animate-pulse');
+                    break;
+                case 'success':
+                    svg.classList.add('text-green-400');
+                    break;
+                case 'error':
+                    svg.classList.add('text-red-400');
+                    break;
+                default:
+                    svg.classList.add('text-gray-500');
+                    break;
+            }
         }
+
+        function updatePositionGpsStatus() {
+            const positionName = positionInput.value.trim();
+            if (positionName && appData.positions[positionName]) {
+                setGpsStatus('success');
+            } else {
+                setGpsStatus('none');
+            }
+        }
+        
+        function getGPSForPosition() {
+            const positionName = positionInput.value.trim();
+            if (!positionName || appData.positions[positionName]) {
+                updatePositionGpsStatus();
+                return;
+            }
+
+            if ("geolocation" in navigator) {
+                setGpsStatus('loading');
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const location = {
+                            lat: position.coords.latitude,
+                            lon: position.coords.longitude,
+                            accuracy: position.coords.accuracy
+                        };
+                        appData.positions[positionName] = location;
+                        saveData();
+                        console.log(`GPS for "${positionName}" saved:`, location);
+                        setGpsStatus('success');
+                    },
+                    (error) => {
+                        console.error("Geolocation error:", error.message);
+                        setGpsStatus('error');
+                    },
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                );
+            } else {
+                console.log("Geolocation not supported");
+                setGpsStatus('error');
+            }
+        }
+        
+        // --- Синхронизация с Google Sheets ---
+        function sendDataToGoogleSheet(eventData) {
+            if (!googleScriptUrl) return;
+            const formData = new FormData();
+            formData.append('Timestamp', eventData.timestamp);
+            formData.append('Shift', eventData.shift);
+            formData.append('Position', eventData.position.name);
+            formData.append('Event', eventData.name);
+            formData.append('Azimuth', eventData.azimuth || '');
+            formData.append('Distance', eventData.distance || '');
+            formData.append('Comment', eventData.comment || '');
+            formData.append('Latitude', eventData.position.location ? eventData.position.location.lat : '');
+            formData.append('Longitude', eventData.position.location ? eventData.position.location.lon : '');
+            formData.append('Accuracy', eventData.position.location ? eventData.position.location.accuracy : '');
+            formData.append('DistanceLog', JSON.stringify(eventData.distanceLog));
+            
+            fetch(googleScriptUrl, { method: 'POST', body: formData})
+                .then(res => res.json())
+                .then(data => console.log('Google Sheet response:', data))
+                .catch(err => console.error('Google Sheet send error:', err));
+        }
+
+        function deleteDataFromGoogleSheet(timestamp) {
+             if (!googleScriptUrl) return;
+             fetch(`${googleScriptUrl}?action=delete&timestamp=${encodeURIComponent(timestamp)}`)
+                .then(res => res.json())
+                .then(data => console.log('Google Sheet delete response:', data))
+                .catch(err => console.error('Google Sheet delete error:', err));
+        }
+
+        function clearDataInGoogleSheet(shift, position) {
+            if (!googleScriptUrl) return;
+            fetch(`${googleScriptUrl}?action=clear&shift=${encodeURIComponent(shift)}&position=${encodeURIComponent(position)}`)
+                .then(res => res.json())
+                .then(data => console.log('Google Sheet clear response:', data))
+                .catch(err => console.error('Google Sheet clear error:', err));
+        }
+
 
         // --- Валидация ---
         function isValidAzimuth(value) {
@@ -350,7 +377,7 @@
                 const num = Number(part);
                 if (isNaN(num) || num < 0 || num > 360) return false;
             }
-            if (parts.length === 2 && Number(parts[0]) > Number(parts[1])) return false;
+            if (parts.length === 2 && Number(parts[0]) >= Number(parts[1])) return false;
             return true;
         }
 
@@ -370,41 +397,58 @@
         
         // --- Логика журнала ---
         function updateLogButtonState() {
-            const shiftSelected = shiftSelect.value && !shiftSelect.options[shiftSelect.selectedIndex].disabled;
+            const shiftSet = shiftInput.value.trim() !== '';
+            const positionSet = positionInput.value.trim() !== '';
             const eventSelected = eventSelectValue.dataset.value && eventSelectValue.dataset.value !== '-- Не выбрано --';
             const azimuthValid = isValidAzimuth(azimuthInput.value);
-            logEventButton.disabled = !(shiftSelected && eventSelected && azimuthValid);
+            logEventButton.disabled = !(shiftSet && positionSet && eventSelected && azimuthValid);
         }
 
-        function deleteLogEntry(shiftName, timestamp) {
-            if (!appData.logs[shiftName]) return;
-            appData.logs[shiftName] = appData.logs[shiftName].filter(event => event.timestamp !== timestamp);
-            saveData();
-            renderLog(shiftName);
-
-            if (map && !mapModal.classList.contains('hidden')) {
-                updateMapMarkers();
+        function deleteLogEntry(logKey, timestamp) {
+            if (!appData.logs[logKey]) return;
+            appData.logs[logKey] = appData.logs[logKey].filter(event => event.timestamp !== timestamp);
+            if (appData.logs[logKey].length === 0) {
+                delete appData.logs[logKey];
             }
+            saveData();
+            renderLog();
+            deleteDataFromGoogleSheet(timestamp); // Синхронизация удаления
         }
 
         function logEvent() {
-            const shiftName = shiftSelect.value;
+            const shiftName = shiftInput.value.trim();
+            const positionName = positionInput.value.trim();
             const eventName = eventSelectValue.dataset.value;
             const azimuthValue = azimuthCheckbox.checked ? azimuthInput.value.trim() : null;
             const commentValue = commentCheckbox.checked ? commentInput.value.trim() : null;
             const distanceInput = document.getElementById('distance-input');
             const distanceValue = distanceInput ? distanceInput.value : null;
             
-            if (!shiftName || !eventName || shiftSelect.options[shiftSelect.selectedIndex].disabled || eventName === '-- Не выбрано --' || !isValidAzimuth(azimuthInput.value)) return;
+            if (!shiftName || !positionName || !eventName || eventName === '-- Не выбрано --' || !isValidAzimuth(azimuthInput.value)) return;
 
-            if (!appData.logs[shiftName]) { appData.logs[shiftName] = []; }
+            const logKey = `${shiftName} | ${positionName}`;
+            if (!appData.logs[logKey]) { appData.logs[logKey] = []; }
             
-            const newEvent = { name: eventName, timestamp: new Date().toISOString(), azimuth: azimuthValue, comment: commentValue, distance: distanceValue || null, distanceLog: localDistanceLog };
+            const newEvent = { 
+                name: eventName,
+                shift: shiftName,
+                timestamp: new Date().toISOString(), 
+                azimuth: azimuthValue, 
+                comment: commentValue, 
+                distance: distanceValue || null, 
+                distanceLog: localDistanceLog,
+                position: {
+                    name: positionName,
+                    location: appData.positions[positionName] || null
+                }
+            };
             
-            appData.logs[shiftName].push(newEvent);
+            appData.logs[logKey].push(newEvent);
             saveData();
-            renderLog(shiftName);
+            renderLog();
+            sendDataToGoogleSheet(newEvent); // Синхронизация добавления
 
+            // Сброс полей
             azimuthInput.value = '';
             azimuthInput.classList.remove('border-red-500');
             azimuthInput.classList.add('border-gray-600');
@@ -426,40 +470,36 @@
         }
 
         function clearLog() {
-            const shiftName = shiftSelect.value;
-            if (shiftName && !shiftSelect.options[shiftSelect.selectedIndex].disabled) {
-                appData.logs[shiftName] = [];
+            const shiftName = shiftInput.value.trim();
+            const positionName = positionInput.value.trim();
+            const logKey = `${shiftName} | ${positionName}`;
+            if (logKey && appData.logs[logKey]) {
+                delete appData.logs[logKey];
                 saveData();
-                renderLog(shiftName);
+                renderLog();
+                clearDataInGoogleSheet(shiftName, positionName); // Синхронизация очистки
             }
         }
         
-        function renderLog(shiftName) {
+        function renderLog() {
+            const shiftName = shiftInput.value.trim();
+            const positionName = positionInput.value.trim();
+            const logKey = `${shiftName} | ${positionName}`;
             logList.innerHTML = '';
-            const originalEvents = appData.logs[shiftName] || [];
+            const originalEvents = appData.logs[logKey] || [];
+
             if (originalEvents.length === 0) {
                 logList.innerHTML = `<li class="text-center text-gray-500 pt-16">Журнал пуст</li>`;
                 return;
             }
-            const lastTimestampsByEvent = {};
-            const eventsWithDiffs = originalEvents.map(event => {
-                const eventDateObj = new Date(event.timestamp);
-                let formattedDiff = '';
-                if (lastTimestampsByEvent[event.name]) {
-                    const diff = eventDateObj - lastTimestampsByEvent[event.name];
-                    const totalSeconds = Math.round(diff / 1000);
-                    const minutes = Math.floor(totalSeconds / 60);
-                    const seconds = totalSeconds % 60;
-                    formattedDiff = `+${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-                }
-                lastTimestampsByEvent[event.name] = eventDateObj;
-                return { ...event, formattedDiff };
-            });
-            const reversedEvents = eventsWithDiffs.reverse();
+
+            const reversedEvents = [...originalEvents].reverse();
             let lastDate = null;
+
             reversedEvents.forEach(event => {
                 const eventDateObj = new Date(event.timestamp);
                 const eventDate = eventDateObj.toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' });
+
                 if (eventDate !== lastDate) {
                     const dateHeader = document.createElement('li');
                     dateHeader.className = 'date-header sticky top-0 bg-gray-900/80 backdrop-blur-sm z-10 py-1';
@@ -467,7 +507,7 @@
                     logList.appendChild(dateHeader);
                     lastDate = eventDate;
                 }
-                const { formattedDiff } = event;
+
                 const timestamp = eventDateObj.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
                 const eventColor = stringToColor(event.name);
                 const safeComment = escapeHTML(event.comment);
@@ -475,13 +515,27 @@
                 const distanceHtml = event.distance ? `<span class="inline-flex items-center text-sm text-green-400"><svg class="w-4 h-4 mr-1 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>~${event.distance} м</span>` : '';
                 const infoHtml = [azimuthHtml, distanceHtml].filter(Boolean).join('<span class="text-gray-600 font-sans mx-2">/</span>');
                 const commentHtml = event.comment ? `<div class="bg-black/20 px-4 py-2 border-t border-gray-700/50"><p class="text-sm text-gray-400 italic whitespace-pre-wrap break-words">${safeComment}</p></div>` : '';
+                
                 const li = document.createElement('li');
                 li.className = 'log-entry bg-gray-900/50 rounded-lg overflow-hidden transition-all duration-300 hover:bg-gray-800/70 shadow-md group';
-                li.innerHTML = `<div class="p-3"><div class="grid grid-cols-12 gap-x-2 gap-y-1 items-center"><div class="col-span-12 sm:col-span-5 flex items-center"><span class="w-2.5 h-2.5 rounded-full mr-3 flex-shrink-0" style="background-color: ${eventColor};"></span><span class="font-bold text-base" style="color: ${eventColor};">${event.name}</span></div><div class="col-span-12 sm:col-span-4 text-left">${infoHtml}</div><div class="col-span-12 sm:col-span-3 flex items-center justify-end gap-2"><span class="text-sm text-yellow-400 font-mono">${formattedDiff}</span><span class="text-xs text-gray-500 font-mono">${timestamp}</span><button data-timestamp="${event.timestamp}" class="delete-entry-btn p-1 text-gray-500 hover:text-white hover:bg-red-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" title="Удалить запись"><svg class="w-3.5 h-3.5 pointer-events-none" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg></button></div></div></div>${commentHtml}`;
+                li.innerHTML = `<div class="p-3"><div class="grid grid-cols-12 gap-x-2 gap-y-1 items-center"><div class="col-span-12 sm:col-span-5 flex items-center"><span class="w-2.5 h-2.5 rounded-full mr-3 flex-shrink-0" style="background-color: ${eventColor};"></span><span class="font-bold text-base" style="color: ${eventColor};">${event.name}</span></div><div class="col-span-12 sm:col-span-4 text-left">${infoHtml}</div><div class="col-span-12 sm:col-span-3 flex items-center justify-end gap-2"><span class="text-sm text-gray-400 font-mono">${timestamp}</span><button data-timestamp="${event.timestamp}" class="delete-entry-btn p-1 text-gray-500 hover:text-white hover:bg-red-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" title="Удалить запись"><svg class="w-3.5 h-3.5 pointer-events-none" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg></button></div></div></div>${commentHtml}`;
                 logList.appendChild(li);
             });
             logList.scrollTop = 0;
         }
+
+        shiftInput.addEventListener('input', () => {
+            localStorage.setItem('lastShift', shiftInput.value.trim());
+            renderLog();
+            updateLogButtonState();
+        });
+        positionInput.addEventListener('input', () => {
+            localStorage.setItem('lastPosition', positionInput.value.trim());
+            renderLog();
+            updateLogButtonState();
+            updatePositionGpsStatus();
+        });
+        positionInput.addEventListener('blur', getGPSForPosition);
 
         logEventButton.addEventListener('click', () => logEvent());
         commentCheckbox.addEventListener('change', () => { commentContainer.classList.toggle('hidden', !commentCheckbox.checked); });
@@ -495,9 +549,11 @@
         }
 
         clearLogButton.addEventListener('click', () => {
-            const shiftName = shiftSelect.value;
-            if (shiftName && !shiftSelect.options[shiftSelect.selectedIndex].disabled && (appData.logs[shiftName] || []).length > 0) {
-                showConfirm('Вы уверены, что хотите очистить журнал для этой смены? Это действие необратимо.', clearLog);
+            const shiftName = shiftInput.value.trim();
+            const positionName = positionInput.value.trim();
+            const logKey = `${shiftName} | ${positionName}`;
+            if (logKey && (appData.logs[logKey] || []).length > 0) {
+                showConfirm(`Вы уверены, что хотите очистить журнал для смены "${shiftName}" на позиции "${positionName}"? Это действие необратимо.`, clearLog);
             }
         });
 
@@ -505,10 +561,12 @@
             const deleteBtn = e.target.closest('.delete-entry-btn');
             if (deleteBtn) {
                 const timestamp = deleteBtn.dataset.timestamp;
-                const currentShift = shiftSelect.value;
-                if (timestamp && currentShift && !shiftSelect.options[shiftSelect.selectedIndex].disabled) {
+                const shiftName = shiftInput.value.trim();
+                const positionName = positionInput.value.trim();
+                const logKey = `${shiftName} | ${positionName}`;
+                if (timestamp && logKey) {
                     showConfirm('Вы уверены, что хотите удалить эту запись?', () => {
-                        deleteLogEntry(currentShift, timestamp);
+                        deleteLogEntry(logKey, timestamp);
                     });
                 }
             }
@@ -537,12 +595,15 @@
         // --- Логика статистики ---
         function showStatistics() {
             statsModal.classList.remove('hidden');
-            const shiftName = shiftSelect.value;
-            if (!shiftName || shiftSelect.options[shiftSelect.selectedIndex].disabled) {
-                statsBody.innerHTML = `<p class="text-gray-400 text-center">Сначала выберите смену.</p>`;
+            const shiftName = shiftInput.value.trim();
+            const positionName = positionInput.value.trim();
+            const logKey = `${shiftName} | ${positionName}`;
+
+            if (!logKey) {
+                statsBody.innerHTML = `<p class="text-gray-400 text-center">Сначала введите смену и позицию.</p>`;
                 return;
             }
-            const events = appData.logs[shiftName] || [];
+            const events = appData.logs[logKey] || [];
             if (events.length === 0) {
                 statsBody.innerHTML = `<p class="text-gray-400 text-center">Нет данных для анализа.</p>`;
                 return;
@@ -568,248 +629,42 @@
         statsModalClose.addEventListener('click', () => statsModal.classList.add('hidden'));
         statsModal.addEventListener('click', (e) => { if (e.target === statsModal) { statsModal.classList.add('hidden'); } });
         
-        // --- Логика карты ---
-        function initMap() {
-            if (map) return;
-            map = L.map('map', { attributionControl: false }).setView([49.0, 32.0], 7);
-            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                attribution: 'Tiles &copy; Esri'
-            }).addTo(map);
-            markersLayer = L.layerGroup().addTo(map);
+        // --- Логика JSON ---
+        function exportToJson() {
+            const shiftName = shiftInput.value.trim();
+            const positionName = positionInput.value.trim();
+            const logKey = `${shiftName} | ${positionName}`;
+            const events = appData.logs[logKey];
 
-            map.on('popupopen', function (e) {
-                const popupNode = e.popup.getElement();
-
-                const deleteBtn = popupNode.querySelector('.popup-delete-btn');
-                if (deleteBtn) {
-                    deleteBtn.onclick = function() {
-                        const timestamp = deleteBtn.dataset.timestamp;
-                        const currentShift = shiftSelect.value;
-                        showConfirm('Вы уверены, что хотите удалить эту запись?', () => {
-                            deleteLogEntry(currentShift, timestamp);
-                            map.closePopup(e.popup);
-                        });
-                    };
-                }
-
-                const copyBtn = popupNode.querySelector('.popup-copy-btn');
-                if (copyBtn) {
-                    copyBtn.onclick = function() {
-                        const textToCopy = this.dataset.mgrs;
-                        const originalIcon = this.innerHTML;
-                        const copiedIcon = '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>';
-
-                        const textArea = document.createElement("textarea");
-                        textArea.value = textToCopy;
-                        textArea.style.position="fixed"; textArea.style.left="-9999px";
-                        document.body.appendChild(textArea);
-                        textArea.select();
-                        try {
-                            document.execCommand('copy');
-                            this.innerHTML = copiedIcon;
-                            this.querySelector('svg').style.stroke = '#4ade80'; // green-400
-                        } catch (err) {
-                            console.error('Не удалось скопировать', err);
-                        }
-                        document.body.removeChild(textArea);
-
-                        setTimeout(() => { this.innerHTML = originalIcon; }, 1500);
-                    };
-                }
-            });
-        }
-
-        function updateMapMarkers() {
-            if (!map || !userLocation) return;
-            
-            markersLayer.clearLayers();
-
-            L.marker([userLocation.lat, userLocation.lon]).addTo(markersLayer)
-                .bindPopup('<b>Ваше местоположение</b>');
-
-            const shiftName = shiftSelect.value;
-            const events = appData.logs[shiftName] || [];
-            const relevantEvents = events.filter(e => e.name.includes("Минометный") && (e.distance || (e.distanceLog && e.distanceLog.length > 0)));
-            
-            if (relevantEvents.length === 0) {
-                 map.setView([userLocation.lat, userLocation.lon], 15);
-                 return;
+            if (!events || events.length === 0) {
+                alert("Нет данных для экспорта для текущей смены и позиции.");
+                return;
             }
 
-            const bounds = L.latLngBounds();
-            bounds.extend([userLocation.lat, userLocation.lon]);
+            const exportData = {
+                shift: shiftName,
+                position: {
+                    name: positionName,
+                    location: appData.positions[positionName] || null
+                },
+                events: events
+            };
 
-            relevantEvents.forEach(event => {
-                const distances = (event.distanceLog && event.distanceLog.length > 0) ? event.distanceLog.map(d => d.distance) : [parseFloat(event.distance)];
-                if (distances.every(isNaN)) return;
-                
-                if (event.azimuth && event.azimuth.includes('-')) {
-                    const parts = event.azimuth.split('-').map(Number);
-                    let [startBearing, endBearing] = parts;
-                    if (isNaN(startBearing) || isNaN(endBearing)) return;
-                    if (endBearing < startBearing) endBearing += 360;
-
-                    const latestDistances = distances.slice(-4);
-                    const sectorColors = ['#facc15', '#fb923c', '#f87171', '#e11d48'];
-
-                    latestDistances.forEach((distance, index) => {
-                        if(isNaN(distance)) return;
-
-                        const steps = 20;
-                        const angleStep = (endBearing - startBearing) / steps;
-                        const eventTime = new Date(event.timestamp).toLocaleTimeString('ru-RU');
-                        const popupContent = `<b>${event.name}</b><br>Время: ${eventTime}<br>Дистанция: ~${distance} м.<br>Азимут: ${event.azimuth}°<br><button class="popup-delete-btn" data-timestamp="${event.timestamp}">Удалить</button>`;
-                        
-                        const points = [[userLocation.lat, userLocation.lon]];
-                        for (let i = 0; i <= steps; i++) {
-                            const bearing = startBearing + i * angleStep;
-                            const point = calculateDestinationPoint(userLocation.lat, userLocation.lon, bearing % 360, distance);
-                            points.push([point.lat, point.lon]);
-                        }
-                        
-                        const color = sectorColors[index % sectorColors.length];
-                        const sector = L.polygon(points, { color: color, fillColor: color, fillOpacity: 0.3, weight: 1 }).addTo(markersLayer);
-                        sector.bindPopup(popupContent);
-                        bounds.extend(sector.getBounds());
-                    });
-
-                } else if (event.azimuth) {
-                    const bearing = parseFloat(event.azimuth);
-                    if (isNaN(bearing)) return;
-                    
-                    distances.forEach(distance => {
-                        if(isNaN(distance)) return;
-
-                        const eventPoint = calculateDestinationPoint(userLocation.lat, userLocation.lon, bearing, distance);
-                        const eventTime = new Date(event.timestamp).toLocaleTimeString('ru-RU');
-                        let popupContent = '';
-
-                        try {
-                            if (typeof mgrs === 'undefined') throw new Error("MGRS library is not loaded");
-                            const mgrsString = mgrs.forward([eventPoint.lon, eventPoint.lat]);
-                            const copyIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>`;
-                            popupContent = `<b>${event.name}</b><br>Время: ${eventTime}<br>Дистанция: ~${distance} м.<br>MGRS: ${mgrsString}<button class="popup-copy-btn" data-mgrs="${mgrsString}" title="Копировать">${copyIcon}</button><br><button class="popup-delete-btn" data-timestamp="${event.timestamp}">Удалить</button>`;
-                        } catch (e) {
-                            console.error("Не удалось рассчитать MGRS:", e);
-                            popupContent = `<b>${event.name}</b><br>Время: ${eventTime}<br>Дистанция: ~${distance} м.<br><span style="color:red;">MGRS недоступен</span><br><button class="popup-delete-btn" data-timestamp="${event.timestamp}">Удалить</button>`;
-                        }
-
-                        const lineCoordinates = [[userLocation.lat, userLocation.lon], [eventPoint.lat, eventPoint.lon]];
-                        L.polyline(lineCoordinates, { color: '#f87171', weight: 2, opacity: 0.8, dashArray: '5, 10' }).addTo(markersLayer);
-                        
-                        L.marker([eventPoint.lat, eventPoint.lon], {
-                            icon: L.icon({
-                                iconUrl: 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="red" width="36px" height="36px"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>')
-                            })
-                        }).addTo(markersLayer)
-                          .bindPopup(popupContent);
-                        bounds.extend([eventPoint.lat, eventPoint.lon]);
-                    });
-                } else {
-                     distances.forEach(distance => {
-                        if(isNaN(distance)) return;
-                        const eventTime = new Date(event.timestamp).toLocaleTimeString('ru-RU');
-                        const popupContent = `<b>${event.name}</b><br>Время: ${eventTime}<br>Дистанция: ~${distance} м.<br><button class="popup-delete-btn" data-timestamp="${event.timestamp}">Удалить</button>`;
-
-                        const circle = L.circle([userLocation.lat, userLocation.lon], {
-                            radius: distance,
-                            color: '#60a5fa', // blue-400
-                            fillColor: '#3b82f6', // blue-500
-                            fillOpacity: 0.2,
-                            weight: 1
-                        }).addTo(markersLayer);
-                        circle.bindPopup(popupContent);
-                        bounds.extend(circle.getBounds());
-                    });
-                }
-            });
-            if (bounds.isValid()) {
-                map.fitBounds(bounds.pad(0.1), { maxZoom: 16 });
-            }
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            const date = new Date().toISOString().slice(0, 10);
+            const safeShiftName = shiftName.replace(/[^a-z0-9]/gi, '_');
+            const safePositionName = positionName.replace(/[^a-z0-9]/gi, '_');
+            link.download = `${safePositionName}_${safeShiftName}_${date}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
         }
-
-        function openMap() {
-            mapModal.classList.remove('hidden');
-            initMap();
-            
-            setTimeout(() => { map.invalidateSize() }, 10);
-            
-            const mapOverlay = document.getElementById('map-overlay');
-
-            if (userLocation) {
-                updateMapMarkers();
-            } else if ("geolocation" in navigator) {
-                mapOverlay.innerHTML = `<div class="text-white text-center p-4">Получение геолокации...</div>`;
-                mapOverlay.style.display = 'flex';
-
-                 navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        userLocation = {
-                            lat: position.coords.latitude,
-                            lon: position.coords.longitude
-                        };
-                        mapOverlay.style.display = 'none';
-                        updateMapMarkers();
-                    },
-                    (error) => {
-                        handleGeolocationError(error);
-                    }
-                );
-            } else {
-                 handleGeolocationError({ code: -1, message: "Geolocation not supported" });
-            }
-        }
-        
-        function handleGeolocationError(error) {
-            const mapOverlay = document.getElementById('map-overlay');
-            let errorMessage = 'Не удалось получить ваше местоположение.';
-            if (error.code === -1 || (error.message && error.message.toLowerCase().includes("permissions policy"))) {
-                errorMessage = "Геолокация отключена или не поддерживается в этой среде.";
-            } else {
-                switch(error.code) {
-                    case error.PERMISSION_DENIED:
-                        errorMessage = "Вы запретили доступ к геолокации.";
-                        break;
-                    case error.POSITION_UNAVAILABLE:
-                        errorMessage = "Информация о местоположении недоступна.";
-                        break;
-                    case error.TIMEOUT:
-                        errorMessage = "Истекло время ожидания запроса геолокации.";
-                        break;
-                }
-            }
-            console.error(`Ошибка геолокации (код ${error.code}): ${error.message}`);
-            mapOverlay.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-center p-4">
-                    <p class="text-red-400 font-semibold">${errorMessage}</p>
-                    <p class="text-sm text-gray-400 mt-2 mb-4">Карта не может отображать точки без вашего местоположения. Введите координаты вручную:</p>
-                    <input id="manual-lat-input" type="number" class="bg-gray-700 text-white p-2 rounded mb-2 w-48 text-center" placeholder="Широта (e.g. 50.45)">
-                    <input id="manual-lon-input" type="number" class="bg-gray-700 text-white p-2 rounded mb-3 w-48 text-center" placeholder="Долгота (e.g. 30.52)">
-                    <p id="manual-coord-error" class="text-red-500 text-xs h-4 mb-2"></p>
-                    <button id="manual-location-btn" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Установить</button>
-                </div>`;
-            mapOverlay.style.display = 'flex';
-
-            document.getElementById('manual-location-btn').addEventListener('click', () => {
-                const latInput = document.getElementById('manual-lat-input');
-                const lonInput = document.getElementById('manual-lon-input');
-                const errorEl = document.getElementById('manual-coord-error');
-                
-                const lat = parseFloat(latInput.value);
-                const lon = parseFloat(lonInput.value);
-
-                if (!isNaN(lat) && !isNaN(lon) && lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180) {
-                    userLocation = { lat, lon };
-                    mapOverlay.style.display = 'none';
-                    updateMapMarkers();
-                } else {
-                    errorEl.textContent = 'Некорректные координаты.';
-                }
-            });
-        }
-
-        mapButton.addEventListener('click', openMap);
-        mapModalClose.addEventListener('click', () => mapModal.classList.add('hidden'));
-        mapModal.addEventListener('click', (e) => { if (e.target === mapModal) { mapModal.classList.add('hidden'); } });
+        jsonButton.addEventListener('click', exportToJson);
 
         // --- Логика калькулятора дистанции ---
         let timerStartTime = null;
@@ -867,49 +722,6 @@
             });
         }
         
-        // --- Логика выбора смены ---
-        const renameShiftContainer = document.getElementById('rename-shift-container');
-        const renameShiftInput = document.getElementById('rename-shift-input');
-        const renameShiftButton = document.getElementById('rename-shift-button');
-        let shiftOptionToRename = null;
-
-        shiftSelect.addEventListener('change', () => {
-            const selectedValue = shiftSelect.value;
-            if (selectedValue === 'rename') {
-                renameShiftContainer.classList.remove('hidden');
-                shiftOptionToRename = shiftSelect.options[shiftSelect.selectedIndex - 1]; 
-                renameShiftInput.value = shiftOptionToRename ? shiftOptionToRename.textContent : '';
-                renameShiftInput.focus();
-                logList.innerHTML = `<li class="text-center text-gray-500 pt-16">Выберите смену</li>`;
-            } else {
-                renameShiftContainer.classList.add('hidden');
-                renderLog(selectedValue);
-            }
-            updateLogButtonState();
-        });
-
-        function renameShift() {
-            const newName = renameShiftInput.value.trim();
-            const oldName = shiftOptionToRename.value;
-            if (newName && newName !== oldName && !appData.shiftNames[newName]) {
-                appData.shiftNames[newName] = newName;
-                delete appData.shiftNames[oldName];
-                if (appData.logs[oldName]) {
-                    appData.logs[newName] = appData.logs[oldName];
-                    delete appData.logs[oldName];
-                }
-                shiftOptionToRename.value = newName;
-                shiftOptionToRename.textContent = newName;
-                shiftSelect.value = newName;
-                saveData();
-                renderLog(newName);
-            }
-            renameShiftContainer.classList.add('hidden');
-            renameShiftInput.value = '';
-        }
-        renameShiftButton.addEventListener('click', renameShift);
-        renameShiftInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') renameShift(); });
-
         // --- Логика кастомного выбора события ---
         const eventSelectContainer = document.getElementById('custom-event-select-container');
         const eventOptionsPanel = document.getElementById('event-options-panel');
@@ -996,116 +808,6 @@
 
         addEventButton.addEventListener('click', addNewEvent);
         customEventInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addNewEvent(); });
-        
-        // --- Уведомления ---
-        function showToast(message) {
-            const toast = document.getElementById('toast-notification');
-            toast.textContent = message;
-            toast.classList.remove('opacity-0');
-            setTimeout(() => {
-                toast.classList.add('opacity-0');
-            }, 2000);
-        }
-        
-        // --- Новая функция для получения геолокации ---
-        function fetchCurrentLocation() {
-            return new Promise((resolve, reject) => {
-                if (!navigator.geolocation) {
-                    reject(new Error("Геолокация не поддерживается браузером."));
-                    return;
-                }
-                navigator.geolocation.getCurrentPosition(resolve, reject);
-            });
-        }
-
-        // --- Функционал кнопок Сохранить и Поделиться ---
-        async function saveDataAsFile() {
-            const shiftName = shiftSelect.value;
-            if (!shiftName || shiftSelect.options[shiftSelect.selectedIndex].disabled) {
-                showToast("Сначала выберите смену");
-                return;
-            }
-            const logs = appData.logs[shiftName];
-            if (!logs || logs.length === 0) {
-                showToast("Журнал пуст, нечего сохранять");
-                return;
-            }
-            
-            const dataToSave = {
-                logs: logs
-            };
-
-            try {
-                showToast("Запрос координат...");
-                const position = await fetchCurrentLocation();
-                userLocation = {
-                    lat: position.coords.latitude,
-                    lon: position.coords.longitude
-                };
-                dataToSave.originCoordinates = userLocation;
-                 showToast("Координаты добавлены!");
-            } catch (error) {
-                console.error("Не удалось получить геолокацию:", error.message);
-                showToast("Ошибка: координаты не добавлены");
-            }
-
-            const dataStr = JSON.stringify(dataToSave, null, 2);
-            const blob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            const date = new Date().toISOString().slice(0, 10);
-            a.href = url;
-            a.download = `log_${shiftName}_${date}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        async function shareData() {
-             const shiftName = shiftSelect.value;
-            if (!shiftName || shiftSelect.options[shiftSelect.selectedIndex].disabled) {
-                showToast("Сначала выберите смену");
-                return;
-            }
-            const logs = appData.logs[shiftName] || [];
-            if (logs.length === 0) {
-                 showToast("Журнал пуст, нечем делиться");
-                return;
-            }
-            
-            let shareText = `События за смену "${shiftName}":\n\n`;
-            [...logs].reverse().forEach(event => {
-                const time = new Date(event.timestamp).toLocaleTimeString('ru-RU');
-                shareText += `[${time}] ${event.name}`;
-                if (event.azimuth) shareText += `, азимут: ${event.azimuth}°`;
-                if (event.distance) shareText += `, дистанция: ~${event.distance}м`;
-                if (event.comment) shareText += `\n  - ${event.comment}`;
-                shareText += '\n\n';
-            });
-
-            if (navigator.share) {
-                try {
-                    await navigator.share({
-                        title: `Журнал событий: ${shiftName}`,
-                        text: shareText,
-                    });
-                } catch (err) {
-                    console.error('Ошибка при попытке поделиться:', err);
-                }
-            } else {
-                 try {
-                    await navigator.clipboard.writeText(shareText);
-                    showToast('Текст скопирован в буфер обмена');
-                } catch (err) {
-                    console.error('Не удалось скопировать текст: ', err);
-                    showToast('Ошибка при копировании');
-                }
-            }
-        }
-        
-        saveButton.addEventListener('click', saveDataAsFile);
-        shareButton.addEventListener('click', shareData);
 
         // --- Инициализация и PWA ---
         function initialize() {
@@ -1117,8 +819,8 @@
                 "background_color": "#1f2937",
                 "theme_color": "#4f46e5",
                 "icons": [
-                    { "src": "star.PNG", "type": "image/png", "sizes": "192x192" },
-                    { "src": "star.PNG", "type": "image/png", "sizes": "512x512" }
+                    { "src": "https://placehold.co/192x192/1f2937/ffffff?text=Log", "type": "image/png", "sizes": "192x192" },
+                    { "src": "https://placehold.co/512x512/1f2937/ffffff?text=Log", "type": "image/png", "sizes": "512x512" }
                 ]
             };
             const manifestString = JSON.stringify(manifest);
@@ -1127,13 +829,8 @@
             document.querySelector('#manifest-link').setAttribute('href', manifestURL);
 
             loadData();
-            const existingOptions = Array.from(shiftSelect.querySelectorAll('option[value]:not([value="rename"])'));
-            const savedShiftNames = Object.keys(appData.shiftNames);
-            existingOptions.forEach(opt => { if(!savedShiftNames.includes(opt.value)) { shiftSelect.removeChild(opt); } });
-            savedShiftNames.forEach(name => { if(!existingOptions.find(opt => opt.value === name)) { const option = new Option(name, name); shiftSelect.insertBefore(option, shiftSelect.options[shiftSelect.options.length - 1]); } });
             renderEventOptions();
             updateLogButtonState();
-            renderLog(shiftSelect.value);
         }
 
         window.addEventListener('beforeinstallprompt', (e) => {
@@ -1162,15 +859,6 @@
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js').then(registration => {
                     console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                    
-                    // **НОВЫЙ КОД** для отслеживания обновлений
-                    let refreshing;
-                    navigator.serviceWorker.addEventListener('controllerchange', () => {
-                        if (refreshing) return;
-                        window.location.reload();
-                        refreshing = true;
-                    });
-
                 }, err => {
                     console.log('ServiceWorker registration failed: ', err);
                 });
@@ -1179,5 +867,6 @@
 
         document.addEventListener('DOMContentLoaded', initialize);
     </script>
+    
 </body>
 </html>
