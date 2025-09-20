@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Журнал событий</title>
-
-    <link rel="icon" type="image/png" href="./ico.PNG">  
     
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -212,6 +210,9 @@
         const cancelClearBtn = document.getElementById('cancel-clear-btn');
         const distanceCalculatorWrapper = document.getElementById('distance-calculator-wrapper');
 
+        // !!! ВАЖНО: Вставьте сюда URL вашего веб-приложения Apps Script !!!
+        const googleScriptUrl = 'https://script.google.com/macros/s/AKfycbz4cMnOrj_SDm4gJmcr0l1Jwi4SR1WjMiyc4RQlxF0xYdrDl8ytA2p5Z-kItF3mt3GE/exec';
+
         // --- Структура данных ---
         let appData = { logs: {}, customEvents: [], positions: {} };
         let confirmCallback = null;
@@ -326,6 +327,45 @@
                 setGpsStatus('error');
             }
         }
+        
+        // --- Синхронизация с Google Sheets ---
+        function sendDataToGoogleSheet(eventData) {
+            if (!googleScriptUrl) return;
+            const formData = new FormData();
+            formData.append('Timestamp', eventData.timestamp);
+            formData.append('Shift', eventData.shift);
+            formData.append('Position', eventData.position.name);
+            formData.append('Event', eventData.name);
+            formData.append('Azimuth', eventData.azimuth || '');
+            formData.append('Distance', eventData.distance || '');
+            formData.append('Comment', eventData.comment || '');
+            formData.append('Latitude', eventData.position.location ? eventData.position.location.lat : '');
+            formData.append('Longitude', eventData.position.location ? eventData.position.location.lon : '');
+            formData.append('Accuracy', eventData.position.location ? eventData.position.location.accuracy : '');
+            formData.append('DistanceLog', JSON.stringify(eventData.distanceLog));
+            
+            fetch(googleScriptUrl, { method: 'POST', body: formData})
+                .then(res => res.json())
+                .then(data => console.log('Google Sheet response:', data))
+                .catch(err => console.error('Google Sheet send error:', err));
+        }
+
+        function deleteDataFromGoogleSheet(timestamp) {
+             if (!googleScriptUrl) return;
+             fetch(`${googleScriptUrl}?action=delete&timestamp=${encodeURIComponent(timestamp)}`)
+                .then(res => res.json())
+                .then(data => console.log('Google Sheet delete response:', data))
+                .catch(err => console.error('Google Sheet delete error:', err));
+        }
+
+        function clearDataInGoogleSheet(shift, position) {
+            if (!googleScriptUrl) return;
+            fetch(`${googleScriptUrl}?action=clear&shift=${encodeURIComponent(shift)}&position=${encodeURIComponent(position)}`)
+                .then(res => res.json())
+                .then(data => console.log('Google Sheet clear response:', data))
+                .catch(err => console.error('Google Sheet clear error:', err));
+        }
+
 
         // --- Валидация ---
         function isValidAzimuth(value) {
@@ -372,6 +412,7 @@
             }
             saveData();
             renderLog();
+            deleteDataFromGoogleSheet(timestamp); // Синхронизация удаления
         }
 
         function logEvent() {
@@ -389,7 +430,8 @@
             if (!appData.logs[logKey]) { appData.logs[logKey] = []; }
             
             const newEvent = { 
-                name: eventName, 
+                name: eventName,
+                shift: shiftName,
                 timestamp: new Date().toISOString(), 
                 azimuth: azimuthValue, 
                 comment: commentValue, 
@@ -404,6 +446,7 @@
             appData.logs[logKey].push(newEvent);
             saveData();
             renderLog();
+            sendDataToGoogleSheet(newEvent); // Синхронизация добавления
 
             // Сброс полей
             azimuthInput.value = '';
@@ -434,6 +477,7 @@
                 delete appData.logs[logKey];
                 saveData();
                 renderLog();
+                clearDataInGoogleSheet(shiftName, positionName); // Синхронизация очистки
             }
         }
         
