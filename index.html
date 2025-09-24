@@ -136,7 +136,14 @@
 
             <div id="log-container" class="mt-6">
                 <div class="flex justify-between items-center mb-4 gap-4">
-                    <h2 class="text-lg font-semibold text-white flex-shrink-0">Последние события</h2>
+                        <h2 class="text-lg font-semibold text-white flex-shrink-0 flex items-center gap-2">
+                                <span>Последние события</span>
+                            <svg id="sync-status-icon" class="w-4 h-4 text-gray-500 hidden" title="Статус синхронизации" fill="currentColor" viewBox="0 0 20 20">
+                                <path id="sync-success" fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                <path id="sync-loading" class="hidden" d="M10 2a8 8 0 100 16 8 8 0 000-16zM5 10a1 1 0 011-1h1.586l-1.293-1.293a1 1 0 111.414-1.414l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L7.586 11H6a1 1 0 01-1-1zm5 0a1 1 0 011-1h2a1 1 0 110 2h-2a1 1 0 01-1-1z"></path>
+                                <path id="sync-error" class="hidden" fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                            </svg>
+                        </h2>
                     <div class="flex items-center space-x-2 flex-shrink-0">
                         <button id="install-button" title="Установить приложение" class="text-sm text-gray-400 hover:text-white hover:bg-gray-700 p-2 rounded-lg transition hidden">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -210,7 +217,40 @@
         const cancelClearBtn = document.getElementById('cancel-clear-btn');
         const distanceCalculatorWrapper = document.getElementById('distance-calculator-wrapper');
 
-        // !!! ВАЖНО: Вставьте сюда URL вашего веб-приложения Apps Script !!!
+        // --- ПЕРЕМЕННЫЕ ДЛЯ ИНДИКАТОРА СИНХРОНИЗАЦИИ ---
+        const syncStatusIcon = document.getElementById('sync-status-icon');
+        const syncPaths = {
+            success: syncStatusIcon.querySelector('#sync-success'),
+            loading: syncStatusIcon.querySelector('#sync-loading'),
+            error: syncStatusIcon.querySelector('#sync-error'),
+        };
+        
+
+        /**
+ * Управляет отображением индикатора синхронизации.
+ * @param {'loading' | 'success' | 'error'} status - Текущий статус.
+ */
+function setSyncStatus(status) {
+    syncStatusIcon.classList.remove('hidden', 'text-green-500', 'text-yellow-500', 'text-red-500', 'animate-spin');
+    Object.values(syncPaths).forEach(p => p.classList.add('hidden'));
+
+    if (status === 'loading') {
+        syncStatusIcon.classList.add('text-yellow-500', 'animate-spin');
+        syncPaths.loading.classList.remove('hidden');
+    } else if (status === 'success') {
+        syncStatusIcon.classList.add('text-green-500');
+        syncPaths.success.classList.remove('hidden');
+    } else if (status === 'error') {
+        syncStatusIcon.classList.add('text-red-500');
+        syncPaths.error.classList.remove('hidden');
+    }
+
+    // Автоматически скрыть иконку через 3 секунды, если это успех или ошибка
+    if (status === 'success' || status === 'error') {
+        setTimeout(() => syncStatusIcon.classList.add('hidden'), 3000);
+    }
+}
+        
         const googleScriptUrl = 'https://script.google.com/macros/s/AKfycbz4cMnOrj_SDm4gJmcr0l1Jwi4SR1WjMiyc4RQlxF0xYdrDl8ytA2p5Z-kItF3mt3GE/exec';
 
         // --- Структура данных ---
@@ -329,43 +369,81 @@
         }
         
         // --- Синхронизация с Google Sheets ---
-        function sendDataToGoogleSheet(eventData) {
-            if (!googleScriptUrl) return;
-            const formData = new FormData();
-            formData.append('Timestamp', eventData.timestamp);
-            formData.append('Shift', eventData.shift);
-            formData.append('Position', eventData.position.name);
-            formData.append('Event', eventData.name);
-            formData.append('Azimuth', eventData.azimuth || '');
-            formData.append('Distance', eventData.distance || '');
-            formData.append('Comment', eventData.comment || '');
-            formData.append('Latitude', eventData.position.location ? eventData.position.location.lat : '');
-            formData.append('Longitude', eventData.position.location ? eventData.position.location.lon : '');
-            formData.append('Accuracy', eventData.position.location ? eventData.position.location.accuracy : '');
-            formData.append('DistanceLog', JSON.stringify(eventData.distanceLog));
-            
-            fetch(googleScriptUrl, { method: 'POST', body: formData})
-                .then(res => res.json())
-                .then(data => console.log('Google Sheet response:', data))
-                .catch(err => console.error('Google Sheet send error:', err));
-        }
+       function sendDataToGoogleSheet(eventData) {
+    if (!googleScriptUrl) return;
+    setSyncStatus('loading'); // 1. Показываем индикатор загрузки перед отправкой
+
+    const formData = new FormData();
+    formData.append('Timestamp', eventData.timestamp);
+    formData.append('Shift', eventData.shift);
+    formData.append('Position', eventData.position.name);
+    formData.append('Event', eventData.name);
+    formData.append('Azimuth', eventData.azimuth || '');
+    formData.append('Distance', eventData.distance || '');
+    formData.append('Comment', eventData.comment || '');
+    formData.append('Latitude', eventData.position.location ? eventData.position.location.lat : '');
+    formData.append('Longitude', eventData.position.location ? eventData.position.location.lon : '');
+    formData.append('Accuracy', eventData.position.location ? eventData.position.location.accuracy : '');
+    formData.append('DistanceLog', JSON.stringify(eventData.distanceLog));
+    
+    fetch(googleScriptUrl, { method: 'POST', body: formData })
+        .then(res => {
+            // Добавляем проверку на случай, если сервер ответил ошибкой (например, 404 или 500)
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            return res.json();
+        })
+        .then(data => {
+            console.log('Google Sheet response:', data);
+            setSyncStatus('success'); // 2. Показываем индикатор успеха, если все прошло хорошо
+        })
+        .catch(err => {
+            console.error('Google Sheet send error:', err);
+            setSyncStatus('error'); // 3. Показываем индикатор ошибки, если что-то пошло не так
+        });
+}
 
         function deleteDataFromGoogleSheet(timestamp) {
-             if (!googleScriptUrl) return;
-             fetch(`${googleScriptUrl}?action=delete&timestamp=${encodeURIComponent(timestamp)}`)
-                .then(res => res.json())
-                .then(data => console.log('Google Sheet delete response:', data))
-                .catch(err => console.error('Google Sheet delete error:', err));
-        }
+    if (!googleScriptUrl) return;
+    setSyncStatus('loading'); // 1. Показываем загрузку
 
-        function clearDataInGoogleSheet(shift, position) {
-            if (!googleScriptUrl) return;
-            fetch(`${googleScriptUrl}?action=clear&shift=${encodeURIComponent(shift)}&position=${encodeURIComponent(position)}`)
-                .then(res => res.json())
-                .then(data => console.log('Google Sheet clear response:', data))
-                .catch(err => console.error('Google Sheet clear error:', err));
-        }
+    fetch(`${googleScriptUrl}?action=delete&timestamp=${encodeURIComponent(timestamp)}`)
+        .then(res => {
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            return res.json();
+        })
+        .then(data => {
+            console.log('Google Sheet delete response:', data);
+            setSyncStatus('success'); // 2. Показываем успех
+        })
+        .catch(err => {
+            console.error('Google Sheet delete error:', err);
+            setSyncStatus('error'); // 3. Показываем ошибку
+        });
+}
+function clearDataInGoogleSheet(shift, position) {
+    if (!googleScriptUrl) return;
+    setSyncStatus('loading'); // 1. Показываем загрузку
 
+    fetch(`${googleScriptUrl}?action=clear&shift=${encodeURIComponent(shift)}&position=${encodeURIComponent(position)}`)
+        .then(res => {
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            return res.json();
+        })
+        .then(data => {
+            console.log('Google Sheet clear response:', data);
+            setSyncStatus('success'); // 2. Показываем успех
+        })
+        .catch(err => {
+            console.error('Google Sheet clear error:', err);
+            setSyncStatus('error'); // 3. Показываем ошибку
+        });
+}
 
         // --- Валидация ---
         function isValidAzimuth(value) {
@@ -870,3 +948,4 @@
     
 </body>
 </html>
+
